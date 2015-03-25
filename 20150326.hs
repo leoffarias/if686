@@ -4,10 +4,16 @@
 
 type Table = [(Int, Int)] -- Primeiro int = chave, segundo int = valor
 
-getElem :: Table -> Int -> Int
+{-getElem :: Table -> Int -> Int
 getElem [] _ = 0 -- ???
 getElem ((a, as):bs) n
  | a == n = as
+ | otherwise = getElem bs n-}
+
+getElem :: Table -> Int -> [Int]
+getElem [] _ = []
+getElem ((a, as):bs) n
+ | a == n = [as]
  | otherwise = getElem bs n
 
 hasKey :: Table -> Int -> Bool
