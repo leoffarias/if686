@@ -138,3 +138,28 @@ novaMatriz (a:as) elemento n =[mediana (quickSort (concatena (regiao (a:as) elem
 filtroMediana :: [[Int]] -> Int -> [[Int]] -- Funcao principal que recebe a matriz e n (dimensao do filtro)
 filtroMediana [] _ = []
 filtroMediana (a:as) n = [novaMatriz (a:as) elemento n | elemento <- [1..length(a:as)]]
+
+----------------------- Exercícios em sala 31/03 --------------------------
+
+-- Questao 1 --
+
+trans :: String -> [(Int, Int, String)] -> Int -> Int
+trans (x:xs) ((a,b,c):as) n
+ | (n == a) && (c == [x]) = b
+ | otherwise = trans (x:xs) as n
+ 
+aceita :: Int -> [Int] -> Bool
+aceita n [] = False
+aceita n (x:xs)
+ | x == n = True
+ | otherwise = aceita n xs
+ 
+afd :: String -> [Int] -> [(Int, Int, String)] -> Int -> [Int] -> Bool
+afd [] k ((a,b,c):as) n bs = aceita n bs
+afd (x:xs) k ((a,b,c):as) n bs = afd xs k ((a,b,c):as) (trans (x:xs) ((a,b,c):as) n) bs
+
+-- Questão 2 --
+
+{-
+somatorioHexadecimal :: [String] -> [String]
+somatorioHexadecimal (x:xs) = -}
