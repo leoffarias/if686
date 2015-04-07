@@ -2,12 +2,14 @@ data Shape = Circle Float | Rectangle Float Float
 
 area :: Shape -> Float
 area (Circle r) = (pi * (r*r)) 
+area (Rectangle b h) = (b * h)
 
 --------------------------
 
-data Dia = Segunda | Terca | Quarta | Quinta | Sexta | Sabado | Domingo
+data DiaSemana = Segunda | Terca | Quarta | Quinta | Sexta
+data FdS = Sabado | Domingo
 
-data Dias = DiaUtil Dia Int [String] | DiaFds Dia
+data Dias = DiaUtil DiaSemana Int [String] | DiaFds FdS
 
 fimSemana :: Dias -> String
 fimSemana (DiaUtil _ _ _) = "Nao e fim-de-semana"
