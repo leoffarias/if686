@@ -6,10 +6,36 @@ area (Rectangle b h) = (b * h)
 
 --------------------------
 
-data DiaSemana = Segunda | Terca | Quarta | Quinta | Sexta
-data FdS = Sabado | Domingo
+data Dia = Domingo | Sabado | Segunda Int [String] | Terca Int [String] | Quarta Int [String] | Quinta Int [String] | Sexta Int [String]
 
-data Dias = DiaUtil DiaSemana Int [String] | DiaFds FdS
+fimSemana :: Dia -> String
+fimSemana Domingo = "Fim-de-semana"
+fimSemana Sabado = "Fim-de-semana"
+fimSemana (Segunda n as) = "Nao e fim-de-semana"
+fimSemana (Terca n as) = "Nao e fim-de-semana"
+fimSemana (Quarta n as) = "Nao e fim-de-semana"
+fimSemana (Quinta n as) = "Nao e fim-de-semana"
+fimSemana (Sexta n as) = "Nao e fim-de-semana"
+
+aulaPLC :: Dia -> Bool
+aulaPLC Domingo = False
+aulaPLC Sabado = False
+aulaPLC (Segunda h as) = contido as
+aulaPLC (Terca h as) = contido as
+aulaPLC (Quarta h as) = contido as
+aulaPLC (Quinta h as) = contido as
+aulaPLC (Sexta h as) = contido as
+
+contido :: [String] -> Bool
+contido [] = False
+contido (a:as)
+ | a == "PLC" = True
+ | otherwise = contido as
+
+{-outro modo
+data Dia = Segunda | Terca | Quarta | Quinta | Sexta | Sabado | Domingo
+
+data Dias = DiaUtil Dia Int [String] | DiaFds Dia
 
 fimSemana :: Dias -> String
 fimSemana (DiaUtil _ _ _) = "Nao e fim-de-semana"
@@ -20,4 +46,4 @@ aulaPLC (DiaFds _) = "Nao ha aula de PLC neste dia"
 aulaPLC (DiaUtil _ _ []) = "Nao ha aula de PLC neste dia"
 aulaPLC (DiaUtil x y (a:as))
  | a == "PLC" = "Ha aula de PLC neste dia"
- | otherwise = aulaPLC (DiaUtil x y as) 
+ | otherwise = aulaPLC (DiaUtil x y as)  -}
