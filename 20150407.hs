@@ -47,3 +47,17 @@ aulaPLC (DiaUtil _ _ []) = "Nao ha aula de PLC neste dia"
 aulaPLC (DiaUtil x y (a:as))
  | a == "PLC" = "Ha aula de PLC neste dia"
  | otherwise = aulaPLC (DiaUtil x y as)  -}
+ 
+----------------------------
+ 
+data Tree t = NilT | Node t (Tree t) (Tree t) deriving (Eq, Show)
+
+-- Tree valor esq dir
+
+---
+
+data Expr = Lit Int | Add Expr Expr | Sub Expr Expr
+
+showExpr :: Expr -> String
+
+
