@@ -1,3 +1,7 @@
+
+------------------ exercícios em sala --------------------
+
+
 data Shape = Circle Float | Rectangle Float Float
 
 area :: Shape -> Float
@@ -52,12 +56,32 @@ aulaPLC (DiaUtil x y (a:as))
  
 data Tree t = NilT | Node t (Tree t) (Tree t) deriving (Eq, Show)
 
+{-Outro modo:
+data Tree t = NilT | Node t (Tree t) (Tree t) 
+
+showTree :: Show t => Tree t -> String
+showTree NilT = []
+showTree (Node no (esquerda) (direita)) = (show no) ++ showTree(esquerda) ++ showTree(direita)
+
+eqTree :: Eq t => Tree t -> Tree t -> Bool
+eqTree NilT NilT = True
+eqTree NilT _ = False
+eqTree _ NilT = False
+eqTree (Node no1 (esquerda1) (direita1)) (Node no2 (esquerda2) (direita2))
+    | (no1 == no2) = (eqTree esquerda1 esquerda2) && (eqTree direita1 direita2)
+-}{-}
+
+comparar :: Tree -> Tree -> Bool
+comparar (Node no1 (esquerda1) (direita1)) (Node no2 (esquerda2) (direita2))
+ | (no1 == no2) = True
+ | otherwise = False-}
+
+-- comparar (Node 3 (NilT) (NilT)) (Node 3 (NilT) (NilT))
+
 -- Tree valor esq dir
 
 ---
-
+{-}
 data Expr = Lit Int | Add Expr Expr | Sub Expr Expr
 
-showExpr :: Expr -> String
-
-
+showExpr :: Expr -> String-}
