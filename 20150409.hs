@@ -59,3 +59,52 @@ busca (Grafo grafo) vertices pilha inicio fim
 
 search :: (Eq t) => Grafos t -> t -> t -> Bool -- funcao inicial que marca vertices como não lidos, define o incial como visitado e o coloca na fila
 search (Grafo grafo) inicio fim = busca (Grafo grafo) (marcaVertices (listaVertices (Grafo grafo)) inicio True) [inicio] inicio fim
+
+-------------- EXERCICIOS DA AULA ---------------
+
+{-Exercicios em sala-}
+
+-- ||||||||||||||| map |||||||||||||--
+
+import Data.Char (ord)
+
+raiz :: [Float] -> [Float]
+raiz xs = map sqrt xs
+
+-----------------
+
+sub96 :: [Int] -> [Int]
+sub96 [] = []
+sub96 (a:as) = (a - 96) : (sub96 as)
+
+posicaoAlfabeto :: String -> [Int]
+posicaoAlfabeto [] = []
+posicaoAlfabeto as = sub96 (map ord as)
+
+------------------
+
+map' :: (t -> u) -> [t] -> [u]
+map' f as = [f b | b <- as]
+
+-- ||||||||||||||||| fold ||||||||||||||||||| --
+
+--pertence :: Eq t => t -> [t] -> Bool
+
+member :: Eq t => t -> [t] -> Bool
+member e as = foldr (||) False (map (==e) as)
+
+------------------
+
+concatenaSeDif :: Eq t => [t] -> [t] -> [t]
+concatenaSeDif as [] = as
+concatenaSeDif as (b:bs)
+ | member b as = concatenaSeDif as bs
+ | otherwise = concatenaSeDif as bs ++ [b]
+
+union :: Eq t => [t] -> [t] -> [t]
+union as bs = foldr (concatenaSeDif) [] [as, bs]
+
+------------------
+{-
+somaV :: [String] -> [Int]
+somaV as = map posicaoAlfabeto as-}
