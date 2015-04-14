@@ -73,3 +73,44 @@ filterTree :: Eq t => (t -> Bool) -> Tree t -> [Tree t]
 filterTree _ NilT = []
 filterTree f a = arv : (filtrandoLista f (arv, floresta))
  where (arv, floresta) = filtro f a
+ 
+----------------------------------------------------
+
+--Exercicios em sala--
+
+--Filter and foldr--
+somaECompara ::  Int -> [Int]-> Bool
+somaECompara n as = ((foldr (+) 0 as) < n)
+
+filtrar :: [[Int]] -> Int -> [[Int]]
+filtrar as n = filter (somaECompara n) as
+
+--outro modo
+filtrar2 :: [[Int]] -> Int -> [[Int]]
+filtrar2 as n = filter (\x -> ((foldr (+) 0 x) < n)) as
+
+{-
+outro modo:
+f l n = filter pred l
+ where pred n = ((foldr (+) 0 n) >= n)
+ 
+outro modo:
+f l n = filter (\x -> ((foldr (+) 0 x) >= n)) l
+
+outro modo:
+f l n = filter (\x -> (>= n) . (foldr (+) 0) x)
+ 
+-}
+
+--
+pertence :: Eq t => t -> [t] -> Bool
+pertence _ [] = False
+pertence n (a:as)
+ | n == a = True
+ | otherwise = pertence n as
+
+inter :: Eq t => [t] -> [t] -> [t]
+inter as bs = filter (\x -> (pertence x as)) bs 
+
+--
+
