@@ -12,3 +12,28 @@ filtro (a:as) bs = [qsort (filter (<=a) bs)] ++ filtro as (filter (>a) bs)
 
 listPartitioner :: Ord a => Num a => [a] -> ([a] -> [[a]])
 listPartitioner as = filtro (qsort as)
+
+--------------------------
+
+--Exercicios em sala
+
+{- \ f (x y) -> f (y x) -}
+
+primeiroPar :: [(t, u)] -> [t]
+primeiroPar as = map (\ (x,y) -> x) as
+
+maior :: [[t]] -> Int -> [[t]]
+maior as n = filter (\x -> (length x > n)) as
+
+{-concSeDif :: [[t]] -> [t]
+concSeDif as = foldr1 (++) as-}
+
+-- Aplicação parcial de funções
+somar :: Num t => t -> [t] -> [t]
+somar x as = map (+x) as
+
+maior2 :: Ord t => Num t => [t] -> t
+maior2 as = foldr (max) 0 as
+
+data Tree t = NilT | Node t (Tree t) (Tree t) deriving (Eq, Show)
+
