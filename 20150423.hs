@@ -48,3 +48,52 @@ vertical :: Reta -> Bool
 vertical (a,b)
  | ((xPonto a) == (xPonto b)) = True
  | otherwise = False
+
+pontoY :: Float -> Reta -> Float
+pontoY x ((x1, y1), (x2,y2)) = y1 + (((y2-y1) / (x2-x1)) * (x-x1))
+
+-- Emprestar e devolver banco de dados
+type Pessoa = String
+type Livro = String
+type BancoDados = [(Pessoa, Livro)]
+
+baseExemplo :: BancoDados
+baseExemplo = [("Sergio","O Senhor dos Aneis"), ("Andre","Duna"), ("Fernando","Jonathan Strange & Mr. Norrell"),  ("Fernando","A Game of Thrones")] -- livros emprestados
+
+emprestar :: BancoDados -> Pessoa -> Livro -> BancoDados
+emprestar bd p l = bd ++ [(p, l)]
+
+devolver :: BancoDados -> Pessoa -> Livro -> BancoDados
+devolver bd p l = [(a,b) | (a,b) <- bd, (not (a == p && l == b)) ]
+
+-- Exemplo: Processamento de Texto
+getWord :: String -> String
+getWord [] = []
+getWord (a:as)
+ | a /= ' ' = a : getWord as
+ | otherwise = []
+
+dropWord :: String -> String
+dropWord [] = []
+dropWord (a:as)
+  | a /= ' ' = dropWord as
+  | otherwise = (a:as)
+
+dropSpace :: String -> String
+dropSpace [] = []
+dropSpace (a:as)
+ | a == ' ' = dropSpace as
+ | otherwise = (a:as)
+
+type Word = String
+
+quebraEspaco :: String -> String
+quebraEspaco [] = []
+quebraEspaco (a:as)
+ | a == ' ' = []
+ | otherwise = a : quebraEspaco as
+
+splitWords :: String -> [Word]
+splitWords (a:as) 
+ | a /= ' ' = (getWord (a:as) : splitWords (dropWord (a:as)))
+ | otherwise = splitWords as
