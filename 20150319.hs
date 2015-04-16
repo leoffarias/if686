@@ -46,9 +46,39 @@ double3 (a:[]) = [2*a] --ou (2*a):[]
 
 --Quicksort
 
-quicksort :: [Int] -> [Int]
-quicksort [] = []
-quicksort (a:[]) = [a]
-quicksort (a:as)
- | a < (head as) = a : quicksort as
- --| a > (head as) = ([(head as)] ++ [a]) : quicksort as
+qsort :: Ord a => Num a => [a] -> [a]
+qsort [] = []
+qsort (a:as) = qsort menor ++ [a] ++ qsort maior
+    where menor  = [ x | x <- as, x < a ]
+          maior = [ x | x <- as, x >= a ]
+
+-- Fibonacci
+fib :: Int -> Int
+fib n
+ | n < 2 = n
+ | otherwise = (fib (n-1)) + (fib (n-2))
+
+fibAux :: Int -> Int -> [Int]
+fibAux 0 _ = []
+fibAux n x 
+ | ((mod fibonacci 2) == 0) = fibonacci : fibAux (n-1) (x+1)
+ | otherwise = fibAux n (x+1)
+ where fibonacci = (fib x)
+
+fibPar :: Int -> [Int]
+fibPar n = fibAux n 0
+
+-- ordena a soma
+
+qsortDigits :: [Int] -> [Int]
+qsortDigits [] = []
+qsortDigits (a:as) = qsortDigits menor ++ [a] ++ qsortDigits maior
+    where menor  = [ x | x <- as, sumDigits x < sumDigits a ]
+          maior = [ x | x <- as, sumDigits x >= sumDigits a ]
+
+sumDigits :: Int -> Int
+sumDigits 0 = 0
+sumDigits x = sumDigits (x `div` 10) + (x `mod` 10)
+
+ordenar :: [Int] -> [Int]
+ordenar as = qsortDigits as
