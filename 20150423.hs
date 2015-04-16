@@ -94,6 +94,7 @@ quebraEspaco (a:as)
  | otherwise = a : quebraEspaco as
 
 splitWords :: String -> [Word]
+splitWords [] = []
 splitWords (a:as) 
  | a /= ' ' = (getWord (a:as) : splitWords (dropWord (a:as)))
  | otherwise = splitWords as
