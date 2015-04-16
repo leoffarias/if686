@@ -105,22 +105,6 @@ ordenaTripla2 :: (Int, Int, Int) -> (Int, Int, Int)
 ordenaTripla2 (x, y, z) = (a, b, c)
  where (a, b, c) = menorMaior2 x y z
  
-{-Exercicio: Ponto e reta-}
-
-type Ponto = (Float, Float)
-type Reta = (Ponto, Ponto)
-
-xPonto :: Ponto -> Float
-xPonto (a, b) = a
-
-yPonto :: Ponto -> Float
-yPonto (a,b) = b
-
-vertical :: Reta -> Bool
-vertical (a,b)
- | ((xPonto a) == (xPonto b)) = True
- | otherwise = False
- 
 {- Exemplo: biblioteca -}
 
 type Pessoa = String
