@@ -1,3 +1,11 @@
+01_INTRO_PROGRAMACAO_FUNCIONAL.PDF
 20150319 - Implemente uma função que, dado um número inteiro N, retorne uma lista de inteiros com os N primeiros números pares da sequência de Fibonacci.
 20150319 - Crie um função que recebe uma lista de inteiros e retorna a lista ordenada em função da soma de seus digitos(crescente)
+
+02-TUPLAS_CASAMENTO_PADROES.PDF
 20150324 - Ponto e reta
+20150324 - Funções sobre o banco de dados - atualizações: Emprestar e devolver
+20150324 - Exemplo: Processamento de Texto
+
+03-POLIMORFISMO.PDF
+20150326 - Crie uma função agrupar...

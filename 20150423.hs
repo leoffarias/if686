@@ -98,3 +98,40 @@ splitWords [] = []
 splitWords (a:as) 
  | a /= ' ' = (getWord (a:as) : splitWords (dropWord (a:as)))
  | otherwise = splitWords as
+
+ --
+
+type Line = [Word]
+
+getLine' :: Int -> [Word] -> Line
+getLine' 1 (a:as) = [a]
+getLine' n (a:as) = getLine' (n-1) as
+
+dropLine :: Int -> [Word] -> [Word]
+dropLine 1 (a:as) = as
+dropLine n (a:as) = a : dropLine (n-1) as
+
+-- 26-03
+-- Crie uma função agrupar...
+contaNumaLista :: Eq t => Int -> t -> [t] -> Int
+contaNumaLista n _ [] = n 
+contaNumaLista n x (a:as)
+ | x == a = contaNumaLista (n+1) x as
+ | otherwise = contaNumaLista n x as
+
+conta :: Eq t => Int -> t -> [[t]] -> Int
+conta n x [] = n
+conta n x (a:as) = conta (n + (contaNumaLista 0 x a)) x as
+
+retirar :: Eq t => t -> [[t]] -> [[t]]
+retirar x [] = []
+retirar x ([]:as) = retirar x as
+retirar x ((b:bs):as)
+ | x == b = retirar x (bs:as)
+ | otherwise = [b] : retirar x (bs:as)
+
+agrupar :: Eq t => [[t]] -> [(t, Int)]
+agrupar [] = []
+agrupar ([]:as) = agrupar as
+agrupar ((b:bs):as) = (b, (conta 0 b ((b:bs):as))) : agrupar (retirar b ((b:bs):as))
+

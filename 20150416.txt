@@ -1,5 +1,0 @@
-20150319 - Implemente uma função que, dado um número inteiro N, retorne uma lista de inteiros com os N primeiros números pares da sequência de Fibonacci.
-20150319 - Crie um função que recebe uma lista de inteiros e retorna a lista ordenada em função da soma de seus digitos(crescente)
-20150324 - Ponto e reta
-20150324 - Funções sobre o banco de dados - atualizações: Emprestar e devolver
-20150324 - Exemplo: Processamento de Texto
