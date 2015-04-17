@@ -135,3 +135,18 @@ agrupar [] = []
 agrupar ([]:as) = agrupar as
 agrupar ((b:bs):as) = (b, (conta 0 b ((b:bs):as))) : agrupar (retirar b ((b:bs):as))
 
+--07-04
+--Defina as seguintes funções
+
+data Expr = Lit Int | Add Expr Expr | Sub Expr Expr
+
+showExpr :: Expr -> String
+showExpr (Lit n) = show n
+showExpr (Add e1 e2) = (showExpr e1) ++ "+" ++ (showExpr e2)
+showExpr (Sub e1 e2) = (showExpr e1) ++ "-" ++ (showExpr e2)
+
+data List t = Nil | Cabeca t (List t) deriving (Show)
+
+toList :: List t -> [t]
+toList Nil = []
+toList (Cabeca x (y)) = [x] ++ (toList y)

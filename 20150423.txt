@@ -9,3 +9,6 @@
 
 03-POLIMORFISMO.PDF
 20150326 - Crie uma função agrupar...
+
+04-TIPOS_ALGEBRICOS.PDF
+20150407 - Defina as seguintes funções
