@@ -167,3 +167,12 @@ percorre (Node v e d) n = max (percorre e (n+1)) (percorre d (n+1))
 
 --depth (Node 1 (Node 2 (Node 3 NilT NilT) (Node 4 NilT NilT)) (Node 5 NilT (Node 5 (Node 5 (Node 5 (Node 6 NilT NilT) NilT) NilT) NilT)))
 
+bfs :: Eq t => Tree t -> t -> Bool
+bfs NilT n = False
+bfs (Node v e d) n
+ | v == n = True
+ | otherwise = (||) (bfs e n) (bfs d n)
+ 
+mapTree :: (t -> u) -> Tree t -> Tree u
+mapTree f NilT = NilT
+mapTree f (Node v e d) = (Node (f v) (mapTree f e) (mapTree f d))
