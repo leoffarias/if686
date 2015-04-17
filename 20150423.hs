@@ -150,3 +150,20 @@ data List t = Nil | Cabeca t (List t) deriving (Show)
 toList :: List t -> [t]
 toList Nil = []
 toList (Cabeca x (y)) = [x] ++ (toList y)
+
+fromList :: [t] -> List t
+fromList [] = Nil
+fromList (a:as) = (Cabeca a (fromList as))
+
+data Tree t = NilT | Node t (Tree t) (Tree t) deriving (Eq, Show)
+
+depth :: Tree t -> Int
+depth NilT = 0
+depth t = percorre t (-1) -- raiz tem depth 0
+
+percorre :: Tree t -> Int -> Int
+percorre NilT n = n
+percorre (Node v e d) n = max (percorre e (n+1)) (percorre d (n+1))
+
+--depth (Node 1 (Node 2 (Node 3 NilT NilT) (Node 4 NilT NilT)) (Node 5 NilT (Node 5 (Node 5 (Node 5 (Node 6 NilT NilT) NilT) NilT) NilT)))
+
