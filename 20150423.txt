@@ -12,3 +12,12 @@
 
 04-TIPOS_ALGEBRICOS.PDF
 20150407 - Defina as seguintes funções
+
+05-FUNCOES_ALTA_ORDEM.PDF
+20150409 - Defina em Haskell uma função para inserir um elemento em uma árvore de busca...
+20150414 - diff, que recebe duas listas e retorna uma lista representando a diferença da primeira em relação à segunda.
+20150414 - Implemente uma função mapfilter que, sem usar map nem filter, comporte-se como a função
+20150416 - Dada uma lista de listas, criar uma lista que contém todos os elementos das sub-listas da lista de entrada, mas removendo duplicação
+20150416 - Implemente uma função mapfold que, sem usar map nem foldr, comporte-se como a função
+20150416 - Dada uma árvore binária, devolver uma função que, dada uma árvore binária, verifica se as duas árvores são isomórficas
+20150416 - Dada uma lista, devolve uma função que, dada uma lista, devolve uma lista de pares onde cada par contém um elemento de cada lista
