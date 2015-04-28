@@ -1,20 +1,20 @@
-—— TRABALHO 10 ——
+â€”â€” TRABALHO 10 â€”â€”
 
 
-1. Determine os tipos das expressões a seguir. É necessário mostrar o desenvolvimento que levou você dos tipos das sub-expressões ao tipo da expressão final (por exemplo, como você saiu dos tipos de map, foldr, (.) e (+) para chegar ao tipo de foldr (+).(.).map).
+1. Determine os tipos das expressÃµes a seguir. Ã‰ necessÃ¡rio mostrar o desenvolvimento que levou vocÃª dos tipos das sub-expressÃµes ao tipo da expressÃ£o final (por exemplo, como vocÃª saiu dos tipos de map, foldr, (.) e (+) para chegar ao tipo de foldr (+).(.).map).
 
 
 foldr (+).(.).map
-Colocando parêntesis para ficar mais fácil:
+Colocando parÃªntesis para ficar mais fÃ¡cil:
 (foldr (+)).((.).map)
 
 foldr(+):
 foldr :: (a -> b -> b) -> b -> [a] -> b
-(+) :: Num c -> c -> c -> c
+(+) :: Num c => c -> c -> c
 (a -> b -> b) = c -> c -> c
 a = c
 b = c
-foldr (+) :: Num c -> c -> [c] -> c
+foldr (+) :: Num c => c -> [c] -> c
 
 (.).map:
 (.) :: (e -> f) -> (d -> e) -> d -> f
@@ -35,7 +35,7 @@ foldr (+).(.).map:
 foldr (+) :: Num c -> c -> [c] -> c
 (.) :: (m -> n) -> (l -> m) -> l -> n
 (.).map: (j -> k) -> (d -> [j]) -> d -> [k]
-(m -> n) = Num c -> c -> [c] -> c
+(m -> n) = Num c => c -> [c] -> c
 m = c
 n = [c] -> c
 (l -> m) = (j -> k) -> (d -> [j]) -> d -> [k]
@@ -45,7 +45,7 @@ igualando m:
 Num c = (d -> [j]) -> d -> [k]
 foldr (+).(.).map :: Num (d -> [j]) -> d -> [k] => (j -> k) -> [(d -> [j]) -> d -> [k]] -> (d -> [j]) -> d -> [k]
 
-——
+â€”â€”
 
 (\x y z -> foldr z x y).map
 
@@ -66,7 +66,7 @@ b = [f] -> [g]
 
 (\x y z -> foldr z x y).map :: (f -> g) -> [a] -> (a -> ([f] -> [g]) -> [f] -> [g]) -> [f] -> [g]
 
-——
+â€”â€”
 
 map.((.) (foldr (++) (foldr (++) [] [[1], [2]])))
 
@@ -74,7 +74,7 @@ map.((.) (foldr (++) (foldr (++) [] [[1], [2]])))
 foldr :: (a -> b -> b) -> b -> [a] -> b
 (++) :: [c] -> [c] -> [c]
 [] :: [d]
-[[1],[2]] :: Num e -> [[e]]
+[[1],[2]] :: Num e => [[e]]
 (a -> b -> b) = [c] -> [c] -> [c]
 a = [c]
 b = [c]
@@ -94,11 +94,11 @@ f = [h]
 g = [h]
 g = [e]
 logo f = [h] = g = [e]
-(foldr (++) (foldr (++) [] [[1], [2]])) :: Num e [[e]] -> [e]
+(foldr (++) (foldr (++) [] [[1], [2]])) :: Num e => [[e]] -> [e]
 
 ((.) (foldr (++) (foldr (++) [] [[1], [2]]))):
 (.) :: (j -> k) -> (i -> j) -> i -> k
-(foldr (++) (foldr (++) [] [[1], [2]])) :: Num e [[e]] -> [e]
+(foldr (++) (foldr (++) [] [[1], [2]])) :: Num e => [[e]] -> [e]
 (j -> k) = [[e]] -> [e]
 j = [[e]]
 k = [e]
@@ -119,10 +119,10 @@ l = i
 m = [e]
 map.((.) (foldr (++) (foldr (++) [] [[1], [2]]))) :: Num m => (i -> [[e]]) -> [i] -> [[e]]
 
-——
+â€”â€”
 
 (foldr).(.)$(!!)
-Colocando parêntesis para ficar mais facil:
+Colocando parÃªntesis para ficar mais facil:
 ((foldr).(.))$(!!) 
 
 (foldr).(.):
