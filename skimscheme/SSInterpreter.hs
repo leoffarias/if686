@@ -69,7 +69,7 @@ runhaskell SSInterpreter.hs "(if #f 2 3)"
 
 eval env (List (Atom "comment": _)) = return (Comment)
 {-
-runhaskell SSInterpreter.hs "(comment "Projeto de PLC")"
+runhaskell SSInterpreter.hs "(comment Projeto de PLC)"
 
 []
 runhaskell SSInterpreter.hs "(comment)"
