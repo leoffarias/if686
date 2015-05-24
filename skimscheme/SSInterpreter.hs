@@ -75,7 +75,7 @@ runhaskell SSInterpreter.hs "(comment Projeto de PLC)"
 runhaskell SSInterpreter.hs "(comment)"
 
 []
-runhaskell SSInterpreter.hs "(comment 1 2 3 4 "isto eh um comentario")"
+runhaskell SSInterpreter.hs "(comment 1 2 3 4 \"isto eh um comentario\")"
 
 []
 -}
@@ -162,6 +162,7 @@ environment =
           $ insert "lt?"            (Native boolLt) -- less than 
           $ insert "/"              (Native numericDiv) -- divisao inteira entre numeros 
           $ insert "mod"            (Native numericMod) -- resto da divisao inteira
+          $ insert "eqv?"           (Native compareValue) -- comparacao entre valores  
           $ insert "-"              (Native numericSub) 
           $ insert "car"            (Native car)           
           $ insert "cdr"            (Native cdr)           
@@ -281,6 +282,26 @@ runhaskell SSInterpreter.hs "(define x (mod 9 4))"
 1
 [("x",1)]
 --}
+
+compareString :: String -> String -> Bool
+compareString a b
+ | a == b = True
+ | otherwise = False
+
+compareValue :: [LispVal] -> LispVal
+compareValue [Bool a, Bool b] = (Bool (a == b))
+compareValue [Number a, Number b] = (Bool (a == b))
+compareValue [String a, String b] = (Bool (a == b))
+
+compareValue [Bool _, Number _] = (Bool False)
+compareValue [Number _, Bool _] = (Bool False)
+compareValue [Bool _, String _] = (Bool False)
+compareValue [String _, Bool _] = (Bool False)
+compareValue [Number _, String _] = (Bool False)
+compareValue [String _, Number _] = (Bool False)
+
+
+
 
 numericSub :: [LispVal] -> LispVal
 numericSub [] = Error "wrong number of arguments."
