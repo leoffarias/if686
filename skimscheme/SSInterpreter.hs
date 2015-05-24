@@ -29,6 +29,7 @@ Last update: December 17th 2012
 -}
 
 module Main where
+import Control.Applicative hiding (empty)
 import System.Environment
 import Control.Monad
 import Data.Map as Map
@@ -44,8 +45,40 @@ eval env val@(String _) = return val
 eval env val@(Atom var) = stateLookup env var 
 eval env val@(Number _) = return val
 eval env val@(Bool _) = return val
-
 eval env (List (Atom "if": exp: thn: els:[])) = (eval env exp) >>= (\v -> case v of { (error@(Error _)) -> return error; (boolean@(Bool b)) -> (if (b == True) then eval env thn else eval env els) ; otherwise -> return (Error "etreer")})
+{--
+runhaskell SSInterpreter "(if #t 'yes 'no)
+yes
+[]
+runhaskell SSInterpreter.hs "(if (#f) 'yes 'no)"
+no
+[]
+runhaskell SSInterpreter.hs "(if (boolean? #t) 'yes 'no)"
+yes
+[]
+runhaskell SSInterpreter.hs "(if (boolean? #f) 'yes 'no)"
+yes
+[]
+runhaskell SSInterpreter.hs "(if #t 2 3)"
+2
+[]
+runhaskell SSInterpreter.hs "(if #f 2 3)"
+3
+[]
+--}
+
+eval env (List (Atom "comment": _)) = return (Comment)
+{-
+runhaskell SSInterpreter.hs "(comment "Projeto de PLC")"
+
+[]
+runhaskell SSInterpreter.hs "(comment)"
+
+[]
+runhaskell SSInterpreter.hs "(comment 1 2 3 4 "isto eh um comentario")"
+
+[]
+-}
 
 eval env (List [Atom "quote", val]) = return val
 eval env (List (Atom "begin":[v])) = eval env v
@@ -125,6 +158,8 @@ environment =
           $ insert "list?"          (Native predList)
           $ insert "+"              (Native numericSum) 
           $ insert "*"              (Native numericMult) 
+          $ insert "cons"           (Native cons) -- analogo ao : de haskell 
+          $ insert "lt?"            (Native boolLt) -- less than 
           $ insert "/"              (Native numericDiv) -- divisao inteira entre numeros 
           $ insert "mod"            (Native numericMod) -- resto da divisao inteira
           $ insert "-"              (Native numericSub) 
@@ -148,7 +183,14 @@ instance Monad StateTransformer where
                                  (ST resF) = f v
                              in  resF newS
                       )
-    
+
+instance Functor StateTransformer where
+    fmap = liftM
+
+instance Applicative StateTransformer where
+    pure = return
+    (<*>) = ap
+
 -----------------------------------------------------------
 --          HARDWIRED PREDEFINED LISP FUNCTIONS          --
 -----------------------------------------------------------
@@ -177,6 +219,15 @@ predBoolean :: [LispVal] -> LispVal
 predBoolean (Bool _ : []) = Bool True
 predBoolean (a:[]) = Bool False
 predBoolean ls = Error "wrong number of arguments."
+{--
+runhaskell SSInterpreter.hs "(define x (lt? 20 2))"
+#f
+[("x",#f)]
+
+runhaskell SSInterpreter.hs "(define x (lt? 2 20))"
+#t
+[("x",#t)]
+--}
 
 predList :: [LispVal] -> LispVal
 predList (List _ : []) = Bool True
@@ -191,13 +242,45 @@ numericMult :: [LispVal] -> LispVal
 numericMult [] = Number 1
 numericMult l = numericBinOp (*) l
 
+cons :: [LispVal] -> LispVal -- analogo ao : do haskell
+cons [a,(List l)] = List (a:l)
+cons [a,(DottedList l b)] = DottedList (a : l) b
+cons _ = Error "wrong parameter."
+{--
+unhaskell SSInterpreter.hs "(define x (cons 2 '(3 4 6 8 10)))"
+(2 3 4 6 8 10)
+[("x",(2 3 4 6 8 10))]
+
+Caso seja uma DottedList:
+
+runhaskell SSInterpreter.hs "(define x (cons 2 '(3 . (4 . (6 . (8 . 10))))))"
+(2 3 . (4 . (6 . (8 . 10))))
+[("x",(2 3 . (4 . (6 . (8 . 10)))))]
+--}
+
+boolLt :: [LispVal] -> LispVal -- less than
+boolLt [(Number num1), (Number num2)]
+    | num1 >= num2 = Bool False
+    | otherwise = Bool True
+boolLt _ = Error "wrong parameter."
+
 numericDiv :: [LispVal] -> LispVal -- divisao inteira
 numericDiv [] = Number 0
 numericDiv l = numericBinOp (div) l
+{--
+runhaskell SSInterpreter.hs "(define x (/ 20 2 5))"
+2
+[("x",2)]
+--}
 
 numericMod :: [LispVal] -> LispVal -- resto da divisao inteira
 numericMod [] = Number 0
 numericMod l = numericBinOp (mod) l
+{--
+runhaskell SSInterpreter.hs "(define x (mod 9 4))"
+1
+[("x",1)]
+--}
 
 numericSub :: [LispVal] -> LispVal
 numericSub [] = Error "wrong number of arguments."
