@@ -292,8 +292,8 @@ eqList (a:as) (b:bs)
  | otherwise = False
  where Bool resp = (compareValue [a, b])
 
-eqDotted :: [LispVal] LispVal -> [LispVal] LispVal -> Bool
-eqDotted (a b) (c d)
+eqDotted :: [LispVal] -> LispVal -> [LispVal] -> LispVal -> Bool
+eqDotted a b c d
  | (eqList a c) && resp = True
  | otherwise = False
  where Bool resp = (compareValue [b, d])
@@ -303,16 +303,19 @@ compareValue :: [LispVal] -> LispVal
 compareValue [Bool a, Bool b] = (Bool (a == b))
 compareValue [Number a, Number b] = (Bool (a == b))
 compareValue [String a, String b] = (Bool (a == b))
---compareValue [List [], List []] = (Bool True)
 compareValue [List a, List b] = (Bool (eqList a b))
-compareValue [DottedList a b, DottedList c d] = (Bool (eqDotted (a b) (c d)))
+compareValue [DottedList a b, DottedList c d] = (Bool (eqDotted a b c d))
 
-compareValue [Bool _, Number _] = (Bool False)
-compareValue [Number _, Bool _] = (Bool False)
-compareValue [Bool _, String _] = (Bool False)
-compareValue [String _, Bool _] = (Bool False)
-compareValue [Number _, String _] = (Bool False)
-compareValue [String _, Number _] = (Bool False)
+compareValue [_, _] = (Bool False) -- tipos diferentes
+
+{-
+runhaskell SSInterpreter.hs "(define x (eqv? (* 2 2) (/ 16 4)))"
+runhaskell SSInterpreter.hs "(define x (eqv? #t #f))"
+runhaskell SSInterpreter.hs "(define x (eqv? \"plc\" \"plc\"))"
+runhaskell SSInterpreter.hs "(define x (eqv? (cons 2 '(3 4 5)) (cons 2 '(3 4 5))))"
+runhaskell SSInterpreter.hs "(define x (eqv? '(1 . 2) '(1 . 3)))"
+runhaskell SSInterpreter.hs "(define x (eqv? 1 #t))"
+-}
 
 
 
