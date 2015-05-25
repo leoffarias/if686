@@ -293,25 +293,19 @@ eqList (a:as) (b:bs)
  where Bool resp = (compareValue [a, b])
 
 eqDotted :: [LispVal] LispVal -> [LispVal] LispVal -> Bool
-eqDotted ([] a) ([] b)
- | resp = True
+eqDotted (a b) (c d)
+ | (eqList a c) && resp = True
  | otherwise = False
- where Bool resp = (compareValue [a, b]) 
-eqDotted ([] _) _ = False
-eqDotted _ ([] _) = False
-eqDotted ((a:as) c) ((b:bs) d)
- | resp2 = eqDotted (as c) (bs d)
- | otherwise = False
- where Bool resp2 = (compareValue [a, b]) 
+ where Bool resp = (compareValue [b, d])
 
 
 compareValue :: [LispVal] -> LispVal
 compareValue [Bool a, Bool b] = (Bool (a == b))
 compareValue [Number a, Number b] = (Bool (a == b))
 compareValue [String a, String b] = (Bool (a == b))
-compareValue [List [], List []] = (Bool True)
+--compareValue [List [], List []] = (Bool True)
 compareValue [List a, List b] = (Bool (eqList a b))
-compareValue [DottedList a, DottedList b] = (Bool (eqDotted a b))
+compareValue [DottedList a b, DottedList c d] = (Bool (eqDotted (a b) (c d)))
 
 compareValue [Bool _, Number _] = (Bool False)
 compareValue [Number _, Bool _] = (Bool False)
