@@ -91,6 +91,7 @@ eval env lam@(List (Atom "lambda":(List formals):body:[])) = return lam
 -- the same semantics as redefining other functions, since define is not
 -- stored as a regular function because of its return type.
 eval env (List (Atom "define": args)) = maybe (define env args) (\v -> return v) (Map.lookup "define" env)
+eval env (List (Atom "set!": (Atom var): exp: [])) = stateLookup env var >>= (\v -> case v  of { (error@(Error _)) -> return error; otherwise -> defineVar env var exp})
 eval env (List (Atom func : args)) = mapM (eval env) args >>= apply env func 
 eval env (Error s)  = return (Error s)
 eval env form = return (Error ("Could not eval the special form: " ++ (show form)))
@@ -119,7 +120,6 @@ defineVar env id val =
                 (result, newState) = f s
             in (result, (insert id result newState))
      )
-
 
 -- The maybe function yields a value of type b if the evaluation of 
 -- its third argument yields Nothing. In case it yields Just x, maybe
