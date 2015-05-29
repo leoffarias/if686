@@ -85,6 +85,10 @@ eval env (List (Atom "begin":[v])) = eval env v
 eval env (List (Atom "begin": l: ls)) = (eval env l) >>= (\v -> case v of { (error@(Error _)) -> return error; otherwise -> eval env (List (Atom "begin": ls))})
 eval env (List (Atom "begin":[])) = return (List [])
 eval env lam@(List (Atom "lambda":(List formals):body:[])) = return lam
+eval env lam@(List (List (Atom "lambda":(List formals):body:[]):args)) = mapM (eval env) args >>= (lambda env formals body)
+
+eval env (List (Atom "let":bindings:body:[])) = (flet env (separa bindings) body)
+
 -- The following line is slightly more complex because we are addressing the
 -- case where define is redefined by the user (whatever is the user's reason
 -- for doing so. The problem is that redefining define does not have
@@ -96,13 +100,20 @@ eval env (List (Atom func : args)) = mapM (eval env) args >>= apply env func
 eval env (Error s)  = return (Error s)
 eval env form = return (Error ("Could not eval the special form: " ++ (show form)))
 
+separa :: LispVal -> ([LispVal], [LispVal])
+separa (List []) = ([], [])
+separa (List ((List (id:val:[])):ls)) = ((id:ids), (val:vals))
+  where (ids, vals) = separa (List ls)
+
+flet ::  StateT -> ([LispVal], [LispVal]) -> LispVal -> StateTransformer LispVal
+flet env (formals, args) body = (lambda env formals body args)
+
 stateLookup :: StateT -> String -> StateTransformer LispVal
 stateLookup env var = ST $ 
   (\s -> 
     (maybe (Error "variable does not exist.") 
            id (Map.lookup var (union s env) 
     ), s))
-
 
 -- Because of monad complications, define is a separate function that is not
 -- included in the state of the program. This saves  us from having to make
