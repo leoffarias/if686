@@ -88,7 +88,8 @@ eval env lam@(List (Atom "lambda":(List formals):body:[])) = return lam
 eval env lam@(List (List (Atom "lambda":(List formals):body:[]):args)) = mapM (eval env) args >>= (lambda env formals body)
 
 eval env (List (Atom "let":bindings:body:[])) = (flet env (separa bindings) body)
--- runhaskell SSInterpreter.hs "(begin (define x 10) (let ((x 5) (y (* x 2))) (+ x y)))""
+-- runhaskell SSInterpreter.hs "(begin (define x 10) (let ((x 5) (y (* x 2))) (+ x y)))"
+-- runhaskell SSInterpreter.hs "(let ((x 2) (y 3)) (* x y))"
 
 -- The following line is slightly more complex because we are addressing the
 -- case where define is redefined by the user (whatever is the user's reason
@@ -115,6 +116,9 @@ stateLookup env var = ST $
     (maybe (Error "variable does not exist.") 
            id (Map.lookup var (union env s) 
     ), s))
+
+-- recursao:
+-- (begin (define fact (lambda (n) (if (eqv? n 0) 1 (* n (fact (- n 1)))))) (fact 5))
 
 -- Because of monad complications, define is a separate function that is not
 -- included in the state of the program. This saves  us from having to make
