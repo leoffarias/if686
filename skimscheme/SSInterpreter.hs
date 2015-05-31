@@ -47,7 +47,7 @@ eval env val@(Number _) = return val
 eval env val@(Bool _) = return val
 eval env (List (Atom "if": exp: thn: els:[])) = (eval env exp) >>= (\v -> case v of { (error@(Error _)) -> return error; (boolean@(Bool b)) -> (if (b == True) then eval env thn else eval env els) ; otherwise -> return (Error "etreer")})
 {--
-runhaskell SSInterpreter "(if #t 'yes 'no)
+runhaskell SSInterpreter.hs "(if #t 'yes 'no)
 yes
 []
 runhaskell SSInterpreter.hs "(if (#f) 'yes 'no)"
@@ -66,30 +66,37 @@ runhaskell SSInterpreter.hs "(if #f 2 3)"
 3
 []
 --}
+eval env (List (Atom "set!": (Atom var): exp: [])) = stateLookup env var >>= (\v -> case v  of { (error@(Error _)) -> return error; otherwise -> defineVar env var exp})
+{--
+runhaskell SSInterpreter.hs "(begin (define x 2) (set! x 4))"
+4
+[("x",4)]
 
+runhaskell SSInterpreter.hs "(set! x 4)"
+variable does not exist.
+[]
+--}
 eval env (List (Atom "comment": _)) = return (Comment)
 {-
 runhaskell SSInterpreter.hs "(comment Projeto de PLC)"
-
 []
 runhaskell SSInterpreter.hs "(comment)"
-
 []
 runhaskell SSInterpreter.hs "(comment 1 2 3 4 \"isto eh um comentario\")"
-
 []
 -}
-
 eval env (List [Atom "quote", val]) = return val
 eval env (List (Atom "begin":[v])) = eval env v
 eval env (List (Atom "begin": l: ls)) = (eval env l) >>= (\v -> case v of { (error@(Error _)) -> return error; otherwise -> eval env (List (Atom "begin": ls))})
 eval env (List (Atom "begin":[])) = return (List [])
 eval env lam@(List (Atom "lambda":(List formals):body:[])) = return lam
 eval env lam@(List (List (Atom "lambda":(List formals):body:[]):args)) = mapM (eval env) args >>= (lambda env formals body)
-
 eval env (List (Atom "let":bindings:body:[])) = (flet env (separa bindings) body)
 -- runhaskell SSInterpreter.hs "(begin (define x 10) (let ((x 5) (y (* x 2))) (+ x y)))"
 -- runhaskell SSInterpreter.hs "(let ((x 2) (y 3)) (* x y))"
+
+eval env (List (Atom "make-closure":lambda:[])) = return (Closure lambda env)
+-- runhaskell SSInterpreter.hs "(begin (let ((i 1)) (define f (make-closure (lambda (y) (begin (set! i (+ i y))) )) )) (define val1 (f 1)) (define val2 (f 2)) (+ val1 val2) )"
 
 -- The following line is slightly more complex because we are addressing the
 -- case where define is redefined by the user (whatever is the user's reason
@@ -97,7 +104,6 @@ eval env (List (Atom "let":bindings:body:[])) = (flet env (separa bindings) body
 -- the same semantics as redefining other functions, since define is not
 -- stored as a regular function because of its return type.
 eval env (List (Atom "define": args)) = maybe (define env args) (\v -> return v) (Map.lookup "define" env)
-eval env (List (Atom "set!": (Atom var): exp: [])) = stateLookup env var >>= (\v -> case v  of { (error@(Error _)) -> return error; otherwise -> defineVar env var exp})
 eval env (List (Atom func : args)) = mapM (eval env) args >>= apply env func 
 eval env (Error s)  = return (Error s)
 eval env form = return (Error ("Could not eval the special form: " ++ (show form)))
@@ -117,8 +123,6 @@ stateLookup env var = ST $
            id (Map.lookup var (union env s) 
     ), s))
 
--- recursao:
--- (begin (define fact (lambda (n) (if (eqv? n 0) 1 (* n (fact (- n 1)))))) (fact 5))
 
 -- Because of monad complications, define is a separate function that is not
 -- included in the state of the program. This saves  us from having to make
@@ -137,6 +141,7 @@ defineVar env id val =
             in (result, (insert id result newState))
      )
 
+
 -- The maybe function yields a value of type b if the evaluation of 
 -- its third argument yields Nothing. In case it yields Just x, maybe
 -- applies its second argument f to x and yields (f x) as its result.
@@ -148,10 +153,11 @@ apply env func args =
                       otherwise -> 
                         (stateLookup env func >>= \res -> 
                           case res of 
-                            List (Atom "lambda" : List formals : body:l) -> lambda env formals body args                              
+                            (Closure (List (Atom "lambda" : List formals : body:l)) env2) -> lambda env2 formals body args                        
+                            List (Atom "lambda" : List formals : body:l) -> lambda env formals body args       
                             otherwise -> return (Error $ func ++ " not a function.")
                         )
- 
+                                 
 -- The lambda function is an auxiliary function responsible for
 -- applying user-defined functions, instead of native ones. We use a very stupid 
 -- kind of dynamic variable (parameter) scoping that does not even support
@@ -178,7 +184,7 @@ environment =
           $ insert "lt?"            (Native boolLt) -- less than 
           $ insert "/"              (Native numericDiv) -- divisao inteira entre numeros 
           $ insert "mod"            (Native numericMod) -- resto da divisao inteira
-          $ insert "eqv?"           (Native compareValue) -- comparacao entre valores  
+          $ insert "eqv?"           (Native compareValue) -- comparacao entre valores 
           $ insert "-"              (Native numericSub) 
           $ insert "car"            (Native car)           
           $ insert "cdr"            (Native cdr)           
@@ -236,15 +242,6 @@ predBoolean :: [LispVal] -> LispVal
 predBoolean (Bool _ : []) = Bool True
 predBoolean (a:[]) = Bool False
 predBoolean ls = Error "wrong number of arguments."
-{--
-runhaskell SSInterpreter.hs "(define x (lt? 20 2))"
-#f
-[("x",#f)]
-
-runhaskell SSInterpreter.hs "(define x (lt? 2 20))"
-#t
-[("x",#t)]
---}
 
 predList :: [LispVal] -> LispVal
 predList (List _ : []) = Bool True
@@ -262,9 +259,9 @@ numericMult l = numericBinOp (*) l
 cons :: [LispVal] -> LispVal -- analogo ao : do haskell
 cons [a,(List l)] = List (a:l)
 cons [a,(DottedList l b)] = DottedList (a : l) b
-cons _ = Error "wrong parameter."
+cons _ = Error "wrong arguments."
 {--
-unhaskell SSInterpreter.hs "(define x (cons 2 '(3 4 6 8 10)))"
+runhaskell SSInterpreter.hs "(define x (cons 2 '(3 4 6 8 10)))"
 (2 3 4 6 8 10)
 [("x",(2 3 4 6 8 10))]
 
@@ -279,7 +276,16 @@ boolLt :: [LispVal] -> LispVal -- less than
 boolLt [(Number num1), (Number num2)]
     | num1 >= num2 = Bool False
     | otherwise = Bool True
-boolLt _ = Error "wrong parameter."
+boolLt _ = Error "wrong arguments."
+{--
+runhaskell SSInterpreter.hs "(define x (lt? 20 2))"
+#f
+[("x",#f)]
+
+runhaskell SSInterpreter.hs "(define x (lt? 2 20))"
+#t
+[("x",#t)]
+--}
 
 numericDiv :: [LispVal] -> LispVal -- divisao inteira
 numericDiv [] = Number 0
@@ -299,22 +305,6 @@ runhaskell SSInterpreter.hs "(define x (mod 9 4))"
 [("x",1)]
 --}
 
-eqList :: [LispVal] -> [LispVal] -> Bool
-eqList [] [] = True
-eqList [] _ = False
-eqList _ [] = False
-eqList (a:as) (b:bs)
- | resp = eqList as bs
- | otherwise = False
- where Bool resp = (compareValue [a, b])
-
-eqDotted :: [LispVal] -> LispVal -> [LispVal] -> LispVal -> Bool
-eqDotted a b c d
- | (eqList a c) && resp = True
- | otherwise = False
- where Bool resp = (compareValue [b, d])
-
-
 compareValue :: [LispVal] -> LispVal
 compareValue [Bool a, Bool b] = (Bool (a == b))
 compareValue [Number a, Number b] = (Bool (a == b))
@@ -333,8 +323,20 @@ runhaskell SSInterpreter.hs "(define x (eqv? '(1 . 2) '(1 . 3)))"
 runhaskell SSInterpreter.hs "(define x (eqv? 1 #t))"
 -}
 
+eqList :: [LispVal] -> [LispVal] -> Bool
+eqList [] [] = True
+eqList [] _ = False
+eqList _ [] = False
+eqList (a:as) (b:bs)
+ | resp = eqList as bs
+ | otherwise = False
+ where Bool resp = (compareValue [a, b])
 
-
+eqDotted :: [LispVal] -> LispVal -> [LispVal] -> LispVal -> Bool
+eqDotted a b c d
+ | (eqList a c) && resp = True
+ | otherwise = False
+ where Bool resp = (compareValue [b, d])
 
 numericSub :: [LispVal] -> LispVal
 numericSub [] = Error "wrong number of arguments."
@@ -374,4 +376,3 @@ getResult (ST f) = f empty -- we start with an empty state.
 main :: IO ()
 main = do args <- getArgs
           putStr $ showResult $ getResult $ eval environment $ readExpr $ concat $ args 
-          
