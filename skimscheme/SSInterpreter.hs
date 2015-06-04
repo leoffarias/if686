@@ -171,8 +171,8 @@ apply env func args =
                                               (result1, env1) = f1 $ union envs s
                                               novaClosure = intersection env1 envClosure
                                               (ST f2) = eval novaClosure (List [Atom "define", Atom func, List [Atom "make-closure", mkc]])
-                                              (result2, env2) = f2 $ union env1 $ union env s
-                                              newEnv = union (difference env2 (difference envClosure env)) env
+                                              (result2, env2) = f2 $ union env1 $ union env s  --mesma coisa do da aplicação de f1, mas agora considerando o env resultante de f1
+                                              newEnv = union (difference env2 (difference envClosure env)) env -- atualiza o env com os itens específicos da clausura q foram atualizados no env2. Sempre dando preferencia pro env encontrado mais recentemente (env2, depois o de clausura, depois o geral)
                                 in (result1, newEnv)
                               )
                             List (Atom "lambda" : List formals : body:l) -> lambda env formals body args      
