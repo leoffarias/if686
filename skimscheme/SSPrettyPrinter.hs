@@ -18,8 +18,7 @@ instance Show LispVal where
   show (Native p) = "<native procedure>"
   show (Error s) = s
   show (Comment) = ""
-  show (Closure lambda env) = (show lambda) ++ " environment: " ++ show env
-  
+  show (Closure lambda env) = (show lambda)
 -- This function could be replaced by (unwords.map show). The unwords
 -- function takes a list of String values and uses them to build a 
 -- single String where the words are separated by spaces.
@@ -27,4 +26,3 @@ showListContents :: [LispVal] -> String
 showListContents [] = ""
 showListContents [a] = show a
 showListContents (a:as) = show a ++ " " ++ (showListContents as)
-
