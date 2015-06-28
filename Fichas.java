@@ -1,18 +1,31 @@
 package trab13;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Fichas {
 
 	public int[][] repositorios; //10 arrays de fichas
-
+	public Lock[] locks;
 	int contador; // RECURSO COMPARTILHADO
 
 	public Fichas() {
 		repositorios = new int[10][10000];
 		contador = 0;
+		locks = new ReentrantLock[10];
 	}
 
-	public int obterFicha(int[][] rep) {
-		
+	public int obterFicha(int[][] rep, int[] index) {
+		boolean trava = false;
+		for(int i = 0; (i < 10) && !trava; i++) {
+			trava = locks[i].tryLock();
+			if(trava) {
+				//pegar a chave
+				//como fazer prioridade?
+			} else if (i == 9) {
+				i = 0;
+			}
+		}
 		return 0;
 	}
 
