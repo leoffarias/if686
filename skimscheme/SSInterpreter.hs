@@ -105,7 +105,7 @@ eval env (List (Atom "begin":[])) = return (List [])
 eval env lam@(List (Atom "lambda":(List formals):body:[])) = return lam
 eval env lam@(List (List (Atom "lambda":(List formals):body:[]):args)) = mapM (eval env) args >>= (lambda env formals body)
 eval env (List (Atom "let":bindings:body:[])) = (flet env (separa bindings) body)
--- runhaskell SSInterpreter.hs "(begin (define x 10) (let ((x 5) (y (* x 2))) (+ x y)))""
+-- runhaskell SSInterpreter.hs "(begin (define x 10) (let ((x 5) (y (* x 2))) (+ x y)))"
  
 eval env (List (Atom "make-closure":lambda:[])) = return (Closure lambda env)
 -- runhaskell SSInterpreter.hs "(begin (let ((i 1)) (define f (make-closure (lambda (y) (begin (set! i (+ i y))) )) )) (define val1 (f 1)) (define val2 (f 2)) (+ val1 val2) )"
