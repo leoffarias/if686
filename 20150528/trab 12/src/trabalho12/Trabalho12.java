@@ -57,13 +57,13 @@ public class Trabalho12 implements Runnable {
 		
 		Thread[] threads = new Thread[n]; 
 
-		for (int i = 0; i < n; i ++){
-			int x1 = ((i/n)*x);
-			int x2 =  (((i+1)/n)*x);
+		for (double i = 0; i < n; i ++){
+			int x1 = (int) ((i/n)*x);
+			int x2 =  (int) (((i+1)/n)*x);
 			
-			threads[i] = (new Thread(new Trabalho12(x1, x2, y, z, matriz1, matriz2)));
+			threads[(int) i] = (new Thread(new Trabalho12(x1, x2, y, z, matriz1, matriz2)));
 			
-			threads[i].start();	
+			threads[(int) i].start();	
 		}
 		
 		for (int i = 0; i < n; i ++){
@@ -95,42 +95,17 @@ public class Trabalho12 implements Runnable {
 
 /*
  *    TABELA: 
- *    X           N           Tempo (ms)
- *    10          1           0
- *    10          2           1
- *    10          3           0
- *    10          4           1
- *    10          8           3
- *    10          16          Como dividimos as threads de acordo com X, não é possível calcular
- *    100         1           0
- *    100         2           0
- *    100         3           1
- *    100         4           1
- *    100         8           0
- *    100         16          3
- *    1000        1           0
- *    1000        2           1
- *    1000        3           1
- *    1000        4           1
- *    1000        8           2
- *    1000        16          5
- *    10000       1           4
- *    10000       2           5
- *    10000       3           5
- *    10000       4           6
- *    10000       8           6
- *    10000       16          7
- *    100000      1           24
- *    100000      2           36
- *    100000      3           38
- *    100000      4           23
- *    100000      8           25
- *    100000      16          23
+ *    X           N=1      N=2      N=3      N=4      N=8      N=16
+ *    10          0ms      1ms      0ms      1ms      3ms      Como dividimos as threads de acordo com X, esse resultado nao existe
+ *    100         0ms      0ms      1ms      1ms      0ms      3ms 
+ *    1000        0ms      1ms      1ms      1ms      2ms      5ms 
+ *    10000       4ms      5ms      5ms      6ms      6ms      7ms 
+ *    100000      24ms     36ms     38ms     23ms     25ms     23ms 
  *    
- *    Comentário: Ao aumentar o valor de x, é esperado que o tempo também aumente. Com relação a n, se há muitas
- *    threads para pouco processamento, o desepenho do programa cai, aumentando o tempo necessário para execução.
- *    Porém, é possível perceber que em determinados casos o aumento de threads colaborou com o processamento,
- *    diminuindo o tempo necessário para o programa rodar, o que fica mais visivel quando x = 100000.
+ *    Comentario: Ao aumentar o valor de x o tempo tambem aumentou como esperado. Com relacao a n, se ha muitas
+ *    threads para pouco processamento, o desepenho do programa cai, aumentando o tempo necessario para execucao.
+ *    Porem, foi possivel perceber que em determinados casos o aumento de threads colaborou com o processamento,
+ *    diminuindo o tempo necessario para o programa rodar, o que fica mais visivel quando x = 100000.
  *    
  */
 	
