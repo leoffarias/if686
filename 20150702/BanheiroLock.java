@@ -2,8 +2,11 @@ package trabalho14;
 
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class Banheiro {
+public class BanheiroLock {
 
 	public boolean comHomem;
 	public boolean comMulher;
@@ -13,8 +16,10 @@ public class Banheiro {
 	public Vector<String> mulheresDentro;
 	public long contadorHomem;
 	public long contadorMulher;
+	public Lock trava;
+	public Condition variavelCondicional;
 	
-	public Banheiro() {
+	public BanheiroLock() {
 		this.comHomem = false;
 		this.comMulher = false;
 		this.filaHomem = new Vector<String>();
@@ -23,41 +28,51 @@ public class Banheiro {
 		this.mulheresDentro = new Vector<String>();
 		this.contadorHomem = 0;
 		this.contadorMulher = 0;
+		this.trava = new ReentrantLock();
+		this.variavelCondicional = trava.newCondition();
 	}
 	
-	// Incremento atomico 
-	public synchronized void incrementaHomem(){
+	// Incremento atomico so para imprimir o nome na tela
+	public synchronized long incrementaHomem(){
 		this.contadorHomem++;
+		return this.contadorHomem;
 	}
 	
-	// Incremento atomico 
-	public synchronized void incrementaMulher(){
+	// Incremento atomico so para imprimir o nome na tela
+	public synchronized long incrementaMulher(){
 		this.contadorMulher++;
+		return this.contadorMulher;
 	}
 	
 	/*
 	 * Se tiver mulher, o homem não pode entrar, deve esperar. Caso não tenha mulher, o primeiro homem
 	 * da fila irá entrar no vetor dos homens que estão dentro do banheiro.
 	 */
-	public synchronized void entrarHomem(){
-		while (this.comMulher){
-			try {
-				wait();
-			} catch (InterruptedException e){}
+	public void entrarHomem(){
+		trava.lock();
+		try {
+			while (this.comMulher){
+				try {
+					variavelCondicional.await();
+				} catch (InterruptedException e) { }
+			}
+			this.homensDentro.add(this.filaHomem.get(0));
+			this.comHomem = true;
+			System.out.println(this.filaHomem.get(0) + " entrou. Tem " + this.homensDentro.size() + " homens dentro.");
+			this.filaHomem.remove(0);
+			variavelCondicional.signalAll();
+		} finally{
+			// unlock presente no metodo SairHomem
 		}
-		this.homensDentro.add(this.filaHomem.get(0));
-		this.comHomem = true;
-		System.out.println(this.filaHomem.get(0) + " entrou");
-		this.filaHomem.remove(0);
 	}
 	
 	// O primeiro homem que entrou é o primeiro a sair, verificando se agora há homens no banheiro
-	public synchronized void sairHomem(){
-		System.out.println(this.homensDentro.get(0)+ " saiu");
+	public void sairHomem(){
+		System.out.println(this.homensDentro.get(0)+ " saiu. Tem " + (this.homensDentro.size()-1) + " homens dentro.");
 		this.homensDentro.remove(0);
 		if(this.homensDentro.isEmpty()){
 			this.comHomem = false;
-			notifyAll();
+			trava.unlock();
 		}
 	}
 	
@@ -65,36 +80,42 @@ public class Banheiro {
 	 * Se tiver homem, a mulher não pode entrar, deve esperar. Caso não tenha homem, a primeira mulher
 	 * da fila irá entrar no vetor das mulheres que estão dentro do banheiro.
 	 */
-	public synchronized void entrarMulher(){
-		while (this.comHomem){
-			try {
-				wait();
-			} catch (InterruptedException e){}
+	public void entrarMulher(){
+		trava.lock();
+		try {
+			while (this.comHomem){
+				try {
+					variavelCondicional.await();
+				} catch (InterruptedException e) { }
+			}
+			this.mulheresDentro.add(this.filaMulher.get(0));
+			this.comMulher = true;
+			System.out.println(this.filaMulher.get(0) + " entrou. Tem " + this.mulheresDentro.size()+ " mulheres dentro.");
+			this.filaMulher.remove(0);
+			variavelCondicional.signalAll();
+		} finally {
+			// unlock presente no metodo SairMulher
 		}
-		this.mulheresDentro.add(this.filaMulher.get(0));
-		this.comMulher = true;
-		System.out.println(this.filaMulher.get(0) + " entrou");
-		this.filaMulher.remove(0);
 	}
 	
 	// A primeira mulher que entrou é a primeira a sair, verificando se agora há mulheres no banheiro
-	public synchronized void sairMulher(){
-		System.out.println(this.mulheresDentro.get(0)+ " saiu");
+	public void sairMulher(){
+		System.out.println(this.mulheresDentro.get(0)+ " saiu. Tem " + (this.mulheresDentro.size()-1) + " mulheres dentro.");
 		this.mulheresDentro.remove(0);
 		if(this.mulheresDentro.isEmpty()){
 			this.comMulher = false;
-			notifyAll();
+			trava.unlock();
 		}
 	}
     
 	public static void main(String[] args) {
 		
-		Banheiro banheiro = new Banheiro();
+		BanheiroLock banheiro = new BanheiroLock();
 						
 		// Cria arbitrariamente 50 threads para controlar a entrada/saída de homens e mulheres
 		Thread[] threads = new Thread[50]; 
 		
-		MyThread t = new MyThread(banheiro);
+		MyThread2 t = new MyThread2(banheiro);
 		
 		for (int i = 0; i < 50; i ++){															
 			threads[i] = (new Thread(t));
@@ -113,11 +134,11 @@ public class Banheiro {
 
 }
 
-class MyThread implements Runnable {
+class MyThread2 implements Runnable {
 	
-	Banheiro banheiro;
+	BanheiroLock banheiro;
 	
-	MyThread (Banheiro banheiro){
+	MyThread2 (BanheiroLock banheiro){
 		this.banheiro = banheiro;
 	}
 
@@ -125,14 +146,14 @@ class MyThread implements Runnable {
 		
 		Random gerador = new Random();	
 		
-		// Cria arbitrariamente 100 pessoas querendo entrar/sair do banheiro
-		for (int i = 0; i < 100; i++){
+		// Cria arbitrariamente 50 pessoas querendo entrar/sair do banheiro
+		for (int i = 0; i < 50; i++){
 			
 			boolean quemEntra = gerador.nextBoolean();
 
 			if(quemEntra){
-				banheiro.incrementaHomem();
-				banheiro.filaHomem.add("Homem " + banheiro.contadorHomem); // Cria o homem x na fila de homens
+				long nome = banheiro.incrementaHomem();
+				banheiro.filaHomem.add("Homem " + nome); // Cria o homem x na fila de homens
 				banheiro.entrarHomem();
 				try {
 					Thread.sleep(10); // Tempo arbitrário para dar para perceber varios homens no banheiro
@@ -141,8 +162,8 @@ class MyThread implements Runnable {
 				}
 				banheiro.sairHomem();
 			} else {
-				banheiro.incrementaMulher();
-				banheiro.filaMulher.add("Mulher " + banheiro.contadorMulher); // Cria a mulher x na fila de mulheres
+				long nome = banheiro.incrementaMulher();
+				banheiro.filaMulher.add("Mulher " + nome); // Cria a mulher x na fila de mulheres
 				banheiro.entrarMulher();
 				try {
 					Thread.sleep(10); // Tempo arbitrário para dar para perceber varias mulheres no banheiro
@@ -158,10 +179,12 @@ class MyThread implements Runnable {
 
 
 /*
+ * Notamos que demorou muito mais por conta do bloco que fica verificando se o banheiro esta livre (bloco guardado).
+ * 
  * A questao satisfaz a exclusao mutua pelo fato de que quando um homem ou mulher entra no banheiro, antes verifica
  * se o banheiro esta ocupado com alguem do sexo oposto atraves do boolean comHomem/comMulher. Se estiver ocupado,
- * ele ou ela ira esperar atraves do wait() ate que a(as) pessoa(as) notifiquem atraves do notifyAll() que sairam
- * do banheiro (o vetor de pessoas dentro do banheiro sera vazio).
+ * ele ou ela ira esperar atraves do while ate poder entrar no banheiro, o que ocorre quando o o vetor de pessoas do 
+ * outro sexo dentro do banheiro eh vazio.
  * 
  * Ha ausencia de starvation porque eh usado o esquema de filas para entrar no banheiro e um vetor para pessoas dentro
  * do banheiro. Assim, o primeiro homem/mulher que entrou na fila sempre sera privilegiado para entrar/sair do banheiro. 
